@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdapcr4hw5jg2"]
+
+[ext_resource type="Script" uid="uid://cr1ji1d211dqd" path="res://scripts/pause_ingame.gd" id="1_diaio"]
+
+[node name="PauseManager" type="Node"]
+process_mode = 3
+script = ExtResource("1_diaio")

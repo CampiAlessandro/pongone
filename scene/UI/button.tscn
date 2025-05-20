@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://4qjlefj7cbn7"]
+
+[ext_resource type="FontFile" uid="uid://c2r1ro20hixri" path="res://asset/Minecraft.ttf" id="1_n4tde"]
+[ext_resource type="Script" uid="uid://rmsptc3g5ijt" path="res://scripts/button_animation.gd" id="2_vxja4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vrkn"]
+bg_color = Color(0.772549, 0.847059, 0.427451, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 1)
+shadow_offset = Vector2(4, 4)
+
+[node name="AmiatedButton" type="Button"]
+size_flags_vertical = 3
+theme_override_colors/font_hover_pressed_color = Color(0.0431373, 0.0431373, 0.0431373, 1)
+theme_override_colors/font_hover_color = Color(0.0431373, 0.0431373, 0.0431373, 1)
+theme_override_colors/font_color = Color(0.0446788, 0.0446788, 0.0446788, 1)
+theme_override_colors/font_focus_color = Color(0.0431373, 0.0431373, 0.0431373, 1)
+theme_override_colors/font_pressed_color = Color(0.0431373, 0.0431373, 0.0431373, 1)
+theme_override_fonts/font = ExtResource("1_n4tde")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/focus = SubResource("StyleBoxFlat_7vrkn")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_7vrkn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_7vrkn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_7vrkn")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7vrkn")
+text = "Start"
+script = ExtResource("2_vxja4")
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

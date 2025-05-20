@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://rxypcdwynxhf"]
+
+[ext_resource type="PackedScene" uid="uid://d3n5it14asxwy" path="res://scene/player.tscn" id="1_5kiuu"]
+[ext_resource type="PackedScene" uid="uid://ggh8aj0hjo8c" path="res://scene/ball.tscn" id="2_dbls1"]
+[ext_resource type="PackedScene" uid="uid://b5yitep8dnp3b" path="res://scene/wall.tscn" id="3_xwcet"]
+[ext_resource type="PackedScene" uid="uid://gmop72psdes3" path="res://scene/opponent.tscn" id="4_p1ry8"]
+[ext_resource type="PackedScene" uid="uid://53qm2lal2d28" path="res://scene/goal.tscn" id="5_p1ry8"]
+
+[node name="MatchManager" type="Node"]
+
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(640, 360)
+scale = Vector2(0.16, 18.16)
+
+[node name="ColorRect" type="ColorRect" parent="Node2D"]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(0.694118, 0.698039, 0.709804, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="Player" parent="." instance=ExtResource("1_5kiuu")]
+position = Vector2(50, 360)
+
+[node name="Opponent" parent="." instance=ExtResource("4_p1ry8")]
+position = Vector2(1230, 360)
+
+[node name="Ball" parent="." groups=["ball"] instance=ExtResource("2_dbls1")]
+position = Vector2(640, 360)
+
+[node name="Walls" type="Node" parent="."]
+
+[node name="Wall" parent="Walls" instance=ExtResource("3_xwcet")]
+position = Vector2(633, 720)
+
+[node name="Wall2" parent="Walls" instance=ExtResource("3_xwcet")]
+position = Vector2(633, 0)
+rotation = -3.14159
+
+[node name="LeftGoal" parent="." instance=ExtResource("5_p1ry8")]
+rotation = 1.5708
+
+[node name="GreenGoal" parent="." instance=ExtResource("5_p1ry8")]
+position = Vector2(1279, 310)
+rotation = -1.5708

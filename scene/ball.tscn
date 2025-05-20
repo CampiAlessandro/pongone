@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://ggh8aj0hjo8c"]
+
+[ext_resource type="Texture2D" uid="uid://dpcitqfu1v7y" path="res://asset/RectangleBall.svg" id="1_d8dhm"]
+[ext_resource type="Script" uid="uid://k6gwhktm0tin" path="res://scripts/ball.gd" id="1_h6iok"]
+[ext_resource type="AudioStream" uid="uid://clm4k5ura503u" path="res://asset/ball_hit.wav" id="3_h45nl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h6iok"]
+size = Vector2(24, 24)
+
+[node name="Ball" type="RigidBody2D"]
+gravity_scale = 0.0
+script = ExtResource("1_h6iok")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_h6iok")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_d8dhm")
+
+[node name="HitSoundPLayer" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_h45nl")
+bus = &"SFX"
