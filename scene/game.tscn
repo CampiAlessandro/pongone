@@ -78,6 +78,7 @@ position = Vector2(50, 360)
 
 [node name="Opponent" parent="." groups=["players"] instance=ExtResource("4_p1ry8")]
 position = Vector2(1230, 360)
+reaction_delay = 0.4
 
 [node name="Walls" type="Node" parent="."]
 
