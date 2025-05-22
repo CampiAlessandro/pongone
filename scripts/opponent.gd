@@ -62,7 +62,7 @@ func update_velocity() -> void:
 		velocity.y = lerp(velocity.y, target_velocity.y, acceleration)
 	else:
 		velocity.y = lerp(velocity.y, 0.0, deceleration)
-
+	
 func calculate_direction(predicted_intersection_y: float) -> int:
 	var ball = get_ball_instance()
 	if !ball:
@@ -83,7 +83,7 @@ func get_predicted_intersection_y(ball: RigidBody2D, uncertainty: float) -> floa
 	var ball_position = ball.position
 	var ball_direction = ball.direction
 	var paddle_x = position.x
-
+	
 	if(ball_position == Vector2(screen_size.x / 2, screen_size.y / 2) and ball_direction == Vector2.ZERO):
 		return screen_size.y / 2
 	

@@ -78,7 +78,7 @@ position = Vector2(50, 360)
 
 [node name="Opponent" parent="." groups=["players"] instance=ExtResource("4_p1ry8")]
 position = Vector2(1230, 360)
-reaction_delay = 0.4
+difficulty = 0
 
 [node name="Walls" type="Node" parent="."]
 
@@ -102,6 +102,10 @@ rotation = -1.5708
 wait_time = 0.5
 one_shot = true
 ignore_time_scale = true
+
+[node name="PowerupSpawnTimer" type="Timer" parent="Timers"]
+unique_name_in_owner = true
+wait_time = 0.5
 
 [node name="SFXPlayer" type="AudioStreamPlayer2D" parent="."]
 process_mode = 3
