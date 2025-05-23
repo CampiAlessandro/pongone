@@ -1,5 +1,8 @@
 extends Node
 
+signal powerup_collected(powerup: Dictionary)
+signal powerup_removed(powerup_id: String)
+
 # ===== Constants =====
 @export var MIN_SPAWN_INTERVAL: float = 5.0
 @export var MAX_SPAWN_INTERVAL: float = 15.0
@@ -58,8 +61,8 @@ func spawn_powerup() -> void:
 	var powerup_instance: Node2D = powerup_scene.instantiate()
 	configure_powerup_instance(powerup_instance, powerup_index)
 	
-	var powerup_id = generate_uuid()
-	register_spawned_powerup(powerup_instance, powerup_id, powerup_index)
+	var powerup_instance_id = generate_uuid()
+	register_spawned_powerup(powerup_instance, powerup_instance_id, powerup_index)
 
 func configure_powerup_instance(instance: Node2D, powerup_index: int) -> void:
 	instance.icon = powerup_list[powerup_index].icon
@@ -67,32 +70,36 @@ func configure_powerup_instance(instance: Node2D, powerup_index: int) -> void:
 	add_child(instance)
 	instance.global_position = get_random_spawn_position()
 
-func register_spawned_powerup(instance: Node2D, powerup_id: String, powerup_index: int) -> void:
+func register_spawned_powerup(instance: Node2D, powerup_instance_id: String, powerup_index: int) -> void:
 	var powerup_data = {
 		"instance": instance,
-		"id": powerup_id
+		"id": powerup_instance_id
 	}
 	spawned_powerup_list.append(powerup_data)
 	
 	instance.connect("collected", func():
-		_on_powerup_collected(powerup_index, powerup_id)
+		_on_powerup_collected(powerup_index, powerup_instance_id)
 	)
 
 func _on_powerup_collected(powerup_index: int, powerup_id: String) -> void:
-	var reverse_effect = powerup_list[powerup_index]["effect"].call()
+	var collected_powerup = powerup_list[powerup_index]
+	var reverse_effect = collected_powerup.effect.call()
 	var active_powerup_data = {
-		"name": powerup_list[powerup_index].name,
-		"icon": powerup_list[powerup_index].icon,
+		"name": collected_powerup.name,
+		"icon": collected_powerup.icon,
 		"reverse_function": reverse_effect,
 		"id": powerup_id
 	}
-	active_powerup_list.append(active_powerup_data)
 	remove_spawned_powerup(powerup_id)
 	
+	var end_timer = null
 	if powerup_list[powerup_index]["duration"] < INF:
-		set_powerup_end_timer(powerup_list[powerup_index]["duration"], func():
+		end_timer = set_powerup_end_timer(powerup_list[powerup_index]["duration"], func():
 			remove_powerup(powerup_id)
 		)
+	active_powerup_data["end_timer"] = end_timer
+	active_powerup_list.append(active_powerup_data)
+	powerup_collected.emit(active_powerup_data)
 
 # ===== Powerup Removal =====
 func remove_spawned_powerup(powerup_id: String) -> void:
@@ -108,10 +115,12 @@ func remove_powerup(powerup_id: String) -> void:
 			active_powerup_list[i].reverse_function.call()
 			active_powerup_list.remove_at(i)
 			break
+	powerup_removed.emit(powerup_id)
 
 func remove_all_powerups() -> void:
 	for powerup_data in spawned_powerup_list:
 		powerup_data.instance.queue_free()
+		powerup_removed.emit(powerup_data.id)
 	spawned_powerup_list.clear()
 
 func reverse_all_active_powerups() -> void:
@@ -131,7 +140,7 @@ func get_random_spawn_position() -> Vector2:
 		randi_range(0, spawn_area.y)
 	)
 
-func set_powerup_end_timer(duration: float, function: Callable) -> void:
+func set_powerup_end_timer(duration: float, function: Callable) -> Timer:
 	var end_timer = Timer.new()
 	end_timer.wait_time = duration
 	end_timer.one_shot = true
@@ -141,6 +150,7 @@ func set_powerup_end_timer(duration: float, function: Callable) -> void:
 		function.call()
 		end_timer.call_deferred("queue_free")
 	)
+	return end_timer
 
 # ===== Getters =====
 func get_active_powerups() -> Array:

@@ -1,0 +1,74 @@
+[gd_scene load_steps=6 format=3 uid="uid://bbfhnq0tkg3lk"]
+
+[ext_resource type="Script" uid="uid://dpixcr5ffn0w1" path="res://scripts/powerup_ui_list_item.gd" id="1_d73oe"]
+[ext_resource type="Texture2D" uid="uid://781ramcub7ya" path="res://asset/expand.png" id="1_mrlu4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mrlu4"]
+bg_color = Color(0.23246, 0.000173656, 0.724324, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+anti_aliasing_size = 0.1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d73oe"]
+bg_color = Color(0.231373, 0, 0.72549, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+anti_aliasing_size = 0.1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h0mrt"]
+bg_color = Color(0.960784, 0.65098, 0.137255, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+anti_aliasing_size = 0.1
+
+[node name="Control" type="VBoxContainer"]
+anchors_preset = -1
+anchor_right = 0.0390625
+anchor_bottom = 0.0819444
+script = ExtResource("1_d73oe")
+metadata/_edit_use_anchors_ = true
+
+[node name="Symbol" type="Control" parent="."]
+clip_contents = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Background" type="Panel" parent="Symbol"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mrlu4")
+
+[node name="Icon" type="TextureRect" parent="Symbol"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 8
+texture = ExtResource("1_mrlu4")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10, 5)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_d73oe")
+theme_override_styles/fill = SubResource("StyleBoxFlat_h0mrt")
+value = 50.0
+show_percentage = false

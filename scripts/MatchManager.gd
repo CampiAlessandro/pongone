@@ -15,6 +15,9 @@ extends Node
 @onready var pause_manager: Node = $PauseManager
 @onready var win_screen: Control = $WinScreen
 @onready var powerup_manager: Node = $PowerupManager
+@onready var powerup_ui: Control = $PowerupUI
+@onready var player: Node2D = $Player
+@onready var opponent: Node2D = $Opponent
 
 # Game State
 var current_ball: Node2D
@@ -32,7 +35,7 @@ var powerup_list = [
 		name = "speed_up",
 		description = "Speed up the ball",
 		icon = preload("res://asset/fast_ball.png"),
-		size = 1,
+		size = 10,
 		duration = 10,
 		effect = func():
 			const SPEED_UP_MULTIPLIER = 1.2
@@ -47,7 +50,7 @@ var powerup_list = [
 		name = "bigger_paddle",
 		description = "Make the paddle of the player that collected the power up bigger",
 		icon = preload("res://asset/expand.png"),
-		size = 1,
+		size = 10,
 		effect = func():
 			const PADDLE_SCALE_FACTOR = 1.5
 			if !last_player_touched:
@@ -89,6 +92,11 @@ func _ready() -> void:
 	initialize_game()
 	# powerup_manager.reset_powerup_spawn_timer()
 	powerup_manager.set_powerup_list(powerup_list)
+	powerup_manager.powerup_collected.connect(func(powerup: Dictionary):
+		var player_side = "left" if last_player_touched == player else "right"
+		powerup_ui.add_powerup(powerup, player_side)
+	)
+	powerup_manager.powerup_removed.connect(powerup_ui.remove_powerup)
 
 func _process(delta: float) -> void:
 	if game_state==GameState.WAITING and Input.is_action_just_pressed("start_game"):
