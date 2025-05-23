@@ -18,11 +18,12 @@ const MAX_ANGLE = PI
 @onready var sfx_player: AudioStreamPlayer2D = $SFXPlayer
 @onready var pause_manager: Node = $PauseManager
 @onready var win_screen: Control = $WinScreen
-@onready var powerup_spawn_timer: Timer = $Timers/PowerupSpawnTimer
-@onready var powerup_scene: PackedScene = preload("res://scene/power_up.tscn")
+@onready var powerup_manager: Node = $PowerupManager
+
 # Game State
 var current_ball: Node2D
 var last_scorer
+var last_player_touched: Node2D
 var game_state = GameState.WAITING
 
 var score = {
@@ -36,13 +37,15 @@ var powerup_list = [
 		description = "Speed up the ball",
 		icon = preload("res://asset/fast_ball.png"),
 		size = 1,
-		duration = INF,
+		duration = 10,
 		effect = func():
-			current_ball.speed = current_ball.speed * 0.1
-			return,
-		reverse_effect = func():
-			current_ball.speed = ball_speed
-			return,
+			const SPEED_UP_MULTIPLIER = 1.2
+			current_ball.speed = current_ball.speed * SPEED_UP_MULTIPLIER
+			return func():
+				if !current_ball:
+					return
+				current_ball.speed = ball_speed
+				return,
 	},
 	{
 		name = "bigger_paddle",
@@ -50,12 +53,15 @@ var powerup_list = [
 		icon = preload("res://asset/expand.png"),
 		size = 1,
 		effect = func():
-			$Player.apply_scale(Vector2(1, 1.5))
-			return,
-		duration = 1,
-		reverse_effect = func():
-			$Player.apply_scale(Vector2(1, 1/1.5))
-			return,
+			const PADDLE_SCALE_FACTOR = 1.5
+			if !last_player_touched:
+				return
+			var affected_player = last_player_touched
+			affected_player.apply_scale(Vector2(1, PADDLE_SCALE_FACTOR))
+			return func():
+				affected_player.apply_scale(Vector2(1, 1/PADDLE_SCALE_FACTOR))
+				return,
+		duration = 10,
 	}
 ]
 
@@ -85,41 +91,15 @@ func set_powerup_end_timer(duration:float, function:Callable):
 # Lifecycle methods
 func _ready() -> void:
 	initialize_game()
-	powerup_spawn_timer.timeout.connect(spawn_powerup)
-	powerup_spawn_timer.one_shot = true
-
-func spawn_powerup():
-	var powerup_index = randi_range(0, powerup_list.size()-1)
-	# var powerup_index = 1
-	var powerup_instance:Node2D = powerup_scene.instantiate()
-	powerup_instance.icon = powerup_list[powerup_index].icon
-	powerup_instance.apply_scale(Vector2(powerup_list[powerup_index].size, powerup_list[powerup_index].size))
-	powerup_instance.add_to_group("powerup")
-	add_child(powerup_instance)
-	powerup_instance.global_position = get_random_spawn_position()
-	powerup_instance.connect("collected", func():
-		powerup_list[powerup_index]["effect"].call()
-		if powerup_list[powerup_index]["duration"] < INF:
-			set_powerup_end_timer(powerup_list[powerup_index]["duration"], powerup_list[powerup_index]["reverse_effect"])
-	)
-
-func remove_all_powerups():
-	for powerup in get_tree().get_nodes_in_group("powerup"):
-		powerup.queue_free()
-
-func get_random_spawn_position():
-	var spawn_area = get_viewport().size
-	var spawn_position = Vector2(
-		randi_range(spawn_area.x/4, spawn_area.x*3/4),
-		randi_range(0, spawn_area.y)
-	)
-	return spawn_position
+	# powerup_manager.reset_powerup_spawn_timer()
+	powerup_manager.set_powerup_list(powerup_list)
 
 func _process(delta: float) -> void:
 	if game_state==GameState.WAITING and Input.is_action_just_pressed("start_game"):
 		game_state = GameState.PLAYING
 		set_initial_ball_direction()
-		powerup_spawn_timer.start()
+		powerup_manager.start_powerup_spawning()
+
 # Signal handlers
 func _on_left_goal_body_entered(body: Node2D) -> void:
 	if body.is_in_group("ball"):
@@ -130,8 +110,12 @@ func _on_right_goal_body_entered(body: Node2D) -> void:
 		handle_goal(Player.LEFT)
 
 func _on_respawn_ball_timer_timeout() -> void:
-	remove_all_powerups()
+	powerup_manager.reverse_all_active_powerups()
 	spawn_ball()
+
+func _on_ball_hit_player(player: Node2D) -> void:
+	last_player_touched = player
+	print("last_player_touched: ", last_player_touched)
 
 # Ball Management
 func spawn_ball():
@@ -143,6 +127,7 @@ func spawn_ball():
 	ball_instance.add_to_group("ball")
 	ball_instance.global_position = get_viewport().size/2
 	ball_instance.speed = ball_speed
+	ball_instance.ball_hit_player.connect(_on_ball_hit_player)
 	current_ball = ball_instance
 	game_state = GameState.WAITING
 	#ball_move_timer.start()
@@ -165,10 +150,9 @@ func update_score_labels():
 	left_point_label.text = str(score[Player.LEFT])
 	right_point_label.text = str(score[Player.RIGHT])
 
-
-
 func handle_goal(scorer:Player):
-	powerup_spawn_timer.stop()
+	powerup_manager.stop_powerup_spawning()
+	powerup_manager.remove_all_powerups()
 	play_goal_audio()
 	
 	last_scorer=scorer
@@ -181,7 +165,7 @@ func handle_goal(scorer:Player):
 		handle_end_match("left" if get_winner()==Player.LEFT else "right")
 	else:
 		respawn_ball_timer.start()
-	
+		# powerup_manager.reset_powerup_spawn_timer()	
 
 # Game State Checks
 func is_match_ended() -> bool:
@@ -216,14 +200,11 @@ func handle_end_match(winner:String):
 func set_pausable(value:bool):
 	pause_manager.pausable = value
 
-
 func _on_exit_button_button_down() -> void:
 	get_tree().change_scene_to_file("res://scene/main_menu.tscn")
 
-
 func _on_restart_button_button_down() -> void:
 	get_tree().reload_current_scene()
-
 
 func _on_continue_button_button_down() -> void:
 	pause_manager.call("toggle_pause")

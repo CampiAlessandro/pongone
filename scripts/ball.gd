@@ -1,5 +1,7 @@
 extends RigidBody2D
 
+signal ball_hit_player(player: Node2D)
+
 @export var speed: float = 10.0
 const FAKE_CURVE_FACTOR: float = 0.005
 @onready var hit_sound: AudioStreamPlayer2D = $HitSoundPLayer
@@ -18,7 +20,9 @@ func handle_collision(object_hit: KinematicCollision2D):
 	
 	calculate_bounce(object_hit)
 	play_hit_sound()
-
+	if(has_collided_with_player(object_hit)):
+		ball_hit_player.emit(object_hit.get_collider())
+	
 func play_hit_sound():
 	hit_sound.play()
 

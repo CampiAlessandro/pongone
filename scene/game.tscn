@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://rxypcdwynxhf"]
+[gd_scene load_steps=10 format=3 uid="uid://rxypcdwynxhf"]
 
 [ext_resource type="PackedScene" uid="uid://d3n5it14asxwy" path="res://scene/player.tscn" id="1_5kiuu"]
 [ext_resource type="Script" uid="uid://c6sfaeaisk3dk" path="res://scripts/MatchManager.gd" id="1_xlg7c"]
@@ -8,17 +8,18 @@
 [ext_resource type="PackedScene" uid="uid://53qm2lal2d28" path="res://scene/goal.tscn" id="5_p1ry8"]
 [ext_resource type="PackedScene" uid="uid://bdapcr4hw5jg2" path="res://scene/pause_manager.tscn" id="7_qpk70"]
 [ext_resource type="Script" uid="uid://dkjrvqfm5t1pe" path="res://scripts/win_screen.gd" id="8_ll5lq"]
+[ext_resource type="Script" uid="uid://cmjtdqte45kff" path="res://scene/powerup_manager.gd" id="9_17rxn"]
 
 [node name="MatchManager" type="Node"]
 script = ExtResource("1_xlg7c")
 ball_scene = ExtResource("2_dbls1")
 ball_speed = 20.0
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="HalfLine" type="Node2D" parent="."]
 position = Vector2(640, 360)
 scale = Vector2(0.16, 18.16)
 
-[node name="ColorRect" type="ColorRect" parent="Node2D"]
+[node name="ColorRect" type="ColorRect" parent="HalfLine"]
 offset_left = -20.0
 offset_top = -20.0
 offset_right = 20.0
@@ -78,7 +79,7 @@ position = Vector2(50, 360)
 
 [node name="Opponent" parent="." groups=["players"] instance=ExtResource("4_p1ry8")]
 position = Vector2(1230, 360)
-difficulty = 0
+difficulty = 2
 
 [node name="Walls" type="Node" parent="."]
 
@@ -102,10 +103,6 @@ rotation = -1.5708
 wait_time = 0.5
 one_shot = true
 ignore_time_scale = true
-
-[node name="PowerupSpawnTimer" type="Timer" parent="Timers"]
-unique_name_in_owner = true
-wait_time = 0.5
 
 [node name="SFXPlayer" type="AudioStreamPlayer2D" parent="."]
 process_mode = 3
@@ -184,6 +181,10 @@ text = "Restart"
 [node name="ExitButton" type="Button" parent="WinScreen/VBoxContainer"]
 layout_mode = 2
 text = "Exit"
+
+[node name="PowerupManager" type="Node" parent="."]
+script = ExtResource("9_17rxn")
+MAX_SPAWN_INTERVAL = 10.0
 
 [connection signal="body_entered" from="LeftGoal" to="." method="_on_left_goal_body_entered"]
 [connection signal="body_entered" from="RightGoal" to="." method="_on_right_goal_body_entered"]
