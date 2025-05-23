@@ -1,9 +1,5 @@
 extends Node
 
-# Constants
-const MIN_ANGLE = PI
-const MAX_ANGLE = PI
-
 # Game Configuration
 @export var ball_scene: PackedScene
 @export var points_to_win: int = 5
